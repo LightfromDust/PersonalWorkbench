@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人工作台</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --sidebar-w: 248px;
+  --content-bg: #f5f5f7;
+  --card-bg: #ffffff;
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-muted: #86868b;
+  --text-light: #aeaeb2;
+  --border: #d2d2d7;
+  --primary: #0071e3;
+  --primary-hover: #0077ed;
+  --primary-light: #e8f1fd;
+  --success: #34c759;
+  --success-light: #eafaf0;
+  --warning: #ff9500;
+  --warning-light: #fff4e5;
+  --danger: #ff3b30;
+  --danger-light: #fdeceb;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --shadow: 0 2px 10px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 12px 32px rgba(0,0,0,.12);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font);
+  background: var(--content-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== Sidebar ===== */
+#sidebar {
+  width: var(--sidebar-w);
+  background: rgba(246,246,248,0.82);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid rgba(0,0,0,.08);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 22px 18px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sidebar-brand .brand-badge {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #5ac8fa, #007aff);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,113,227,.3);
+}
+.sidebar-brand .brand-title { font-size: 17px; font-weight: 600; color: var(--text-primary); letter-spacing: -.2px; }
+.nav-list { list-style: none; padding: 6px 12px; flex: 1; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  margin-bottom: 3px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background .15s;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(0,0,0,.04); }
+.nav-item.active { background: rgba(0,0,0,.06); font-weight: 600; }
+.nav-badge {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.14);
+}
+.nav-badge svg { width: 18px; height: 18px; }
+.badge-blue { background: linear-gradient(135deg, #5ac8fa, #007aff); }
+.badge-green { background: linear-gradient(135deg, #aff08a, #34c759); }
+.badge-orange { background: linear-gradient(135deg, #ffd60a, #ff9500); }
+.badge-red { background: linear-gradient(135deg, #ffb3ae, #ff3b30); }
+.badge-purple { background: linear-gradient(135deg, #d9b3ff, #af52de); }
+.badge-teal { background: linear-gradient(135deg, #7fe9d2, #30b0c7); }
+.badge-indigo { background: linear-gradient(135deg, #b8b8ff, #5856d6); }
+.nav-label { font-weight: 500; }
+.sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid rgba(0,0,0,.06);
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* ===== Main Content ===== */
+#content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 24px 28px;
+  min-height: 100vh;
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.page-title {
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -.4px;
+  color: var(--text-primary);
+}
+.page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.card-header {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -.2px;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-sub { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+  font-size: 14px;
+}
+.empty-state .empty-icon { font-size: 36px; margin-bottom: 8px; display: block; }
+
+/* ===== Grid ===== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+
+/* ===== Stat Cards ===== */
+.stat-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-label { font-size: 13px; color: var(--text-muted); }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+.stat-sub { font-size: 12px; color: var(--text-light); }
+.stat-badge {
+  width: 38px; height: 38px;
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+.stat-badge svg { width: 21px; height: 21px; }
+
+/* ===== Forms ===== */
+input, textarea, select {
+  font-family: inherit;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #fff;
+  color: var(--text-primary);
+  transition: border-color .15s;
+  outline: none;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+textarea { resize: vertical; min-height: 80px; }
+select { cursor: pointer; }
+.form-row { display: flex; gap: 8px; align-items: end; }
+.form-row > * { flex: 1; }
+.form-row > .btn { flex: 0 0 auto; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { opacity: .9; }
+.btn-danger { background: #fff; color: var(--danger); border: 1px solid var(--danger); }
+.btn-danger:hover { background: var(--danger-light); }
+.btn-ghost { background: none; color: var(--text-muted); padding: 6px 10px; font-size: 13px; }
+.btn-ghost:hover { color: var(--danger); background: var(--danger-light); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 6px; }
+.btn-block { width: 100%; justify-content: center; }
+
+/* ===== Tags & Badges ===== */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.tag-high { background: var(--danger-light); color: var(--danger); }
+.tag-medium { background: var(--warning-light); color: #d97706; }
+.tag-low { background: #eff6ff; color: #2563eb; }
+.tag-cat { background: var(--primary-light); color: var(--primary); }
+
+/* ===== List Items ===== */
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.list-item:last-child { border-bottom: none; }
+.list-item.done .list-item-text { text-decoration: line-through; color: var(--text-light); }
+.list-item-check { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
+.list-item-check.checked { background: var(--success); border-color: var(--success); color: #fff; font-size: 12px; }
+.list-item-text { flex: 1; word-break: break-word; }
+.list-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+/* ===== Tabs ===== */
+.tabs {
+  display: inline-flex;
+  gap: 2px;
+  margin-bottom: 18px;
+  background: #e8e8ed;
+  padding: 3px;
+  border-radius: 11px;
+}
+.tab {
+  padding: 7px 18px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  transition: all .15s;
+  font-weight: 500;
+}
+.tab:hover { color: var(--text-primary); }
+.tab.active { background: #fff; color: var(--text-primary); box-shadow: var(--shadow-sm); font-weight: 600; }
+
+/* ===== Date Nav ===== */
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.date-nav .nav-arrow { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-muted); transition: all .15s; }
+.date-nav .nav-arrow:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+.date-nav .date-display { font-size: 16px; font-weight: 600; cursor: pointer; }
+.date-nav input[type="date"] { width: auto; }
+
+/* ===== Reports ===== */
+.report-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.report-label { width: 60px; font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
+.report-track { flex: 1; height: 20px; background: var(--content-bg); border-radius: 4px; overflow: hidden; }
+.report-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width .3s; }
+.report-val { width: 80px; font-size: 13px; text-align: right; color: var(--text-primary); flex-shrink: 0; }
+
+/* ===== News ===== */
+.news-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--primary);
+  transition: box-shadow .15s;
+}
+.news-card:hover { box-shadow: var(--shadow-md); }
+.news-card.github { border-left-color: #24292f; }
+.news-card.hn { border-left-color: #ff6600; }
+.news-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.news-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
+
+/* ===== Note Cards ===== */
+.note-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  cursor: default;
+  position: relative;
+}
+.note-card .note-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.note-card .note-preview { font-size: 13px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.note-card .note-tags { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+.note-card .note-del { position: absolute; top: 8px; right: 8px; opacity: 0; transition: opacity .15s; }
+.note-card:hover .note-del { opacity: 1; }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
+
+/* ===== Transaction list ===== */
+.txn-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.txn-item:last-child { border-bottom: none; }
+.txn-amount { font-weight: 600; }
+.txn-amount.income { color: var(--success); }
+.txn-amount.expense { color: var(--danger); }
+.txn-cat { font-size: 12px; color: var(--text-muted); }
+.txn-date-group { font-size: 13px; font-weight: 600; color: var(--text-muted); padding: 8px 0 4px; border-bottom: 1px solid var(--border); }
+
+/* ===== Schedule timeline ===== */
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-time {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 100px;
+  text-align: right;
+}
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+  background: var(--primary);
+}
+.timeline-content { flex: 1; min-width: 0; }
+.timeline-activity { font-size: 14px; font-weight: 500; }
+.timeline-hours { font-size: 12px; color: var(--text-muted); }
+
+/* ===== Overview Todo List ===== */
+.overview-section { margin-bottom: 20px; }
+.overview-section-title { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  #sidebar { width: 64px; }
+  #sidebar .nav-label { display: none; }
+  #sidebar .sidebar-brand { justify-content: center; padding: 22px 0 14px; }
+  #sidebar .sidebar-brand .brand-title { display: none; }
+  #content { margin-left: 64px; padding: 16px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .form-row { flex-direction: column; }
+  .form-row > .btn { flex: 1; }
+}
+
+/* ===== Print ===== */
+@media print {
+  #sidebar { display: none; }
+  #content { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-badge">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M3 3h6.5v6.5H3zM10.5 3H17v6.5h-6.5zM3 10.5h6.5V17H3zM10.5 10.5H17V17h-6.5z" opacity=".96"/></svg>
+    </div>
+    <span class="brand-title">个人工作台</span>
+  </div>
+  <ul class="nav-list">
+    <li class="nav-item active" onclick="navigate('overview')">
+      <span class="nav-badge badge-blue">
+        <svg viewBox="0 0 16 16" fill="white"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.5"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.5"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.5"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.5"/></svg>
+      </span>
+      <span class="nav-label">今日概览</span>
+    </li>
+    <li class="nav-item" onclick="navigate('todos')">
+      <span class="nav-badge badge-green">
+        <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M5.4 8 L7.2 9.8 L10.6 6.2"/></svg>
+      </span>
+      <span class="nav-label">待办任务</span>
+    </li>
+    <li class="nav-item" onclick="navigate('schedule')">
+      <span class="nav-badge badge-orange">
+        <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="3.5" width="12" height="10.5" rx="2.5"/><path d="M2 6.5 H14 M5.5 2 V5 M10.5 2 V5"/></svg>
+      </span>
+      <span class="nav-label">时间规划</span>
+    </li>
+    <li class="nav-item" onclick="navigate('logs')">
+      <span class="nav-badge badge-red">
+        <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 2 H9 L13 6 V14 a1 1 0 0 1 -1 1 H3.5 a1 1 0 0 1 -1 -1 V3 a1 1 0 0 1 1 -1 Z"/><path d="M9 2 V6 H13"/><path d="M5.5 9 H10.5 M5.5 11.5 H9"/></svg>
+      </span>
+      <span class="nav-label">工作日志</span>
+    </li>
+    <li class="nav-item" onclick="navigate('notes')">
+      <span class="nav-badge badge-purple">
+        <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 2 H10 L13 5 V14 H3.5 a1 1 0 0 1 -1 -1 V3 a1 1 0 0 1 1 -1 Z"/><path d="M10 2 V5 H13"/><path d="M5.5 7.5 H10.5 M5.5 10 H9.5"/></svg>
+      </span>
+      <span class="nav-label">随手笔记</span>
+    </li>
+    <li class="nav-item" onclick="navigate('finance')">
+      <span class="nav-badge badge-teal">
+        <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 6 H10.5 M8 5 V11 M6.2 8.5 H9.8 M6.5 10.5 H9.5"/></svg>
+      </span>
+      <span class="nav-label">财务管理</span>
+    </li>
+    <li class="nav-item" onclick="navigate('news')">
+      <span class="nav-badge badge-indigo">
+        <svg viewBox="0 0 16 16" fill="white"><path d="M8 1.5 C8.4 4.2 9 5 11.5 6 C9 7 8.4 7.8 8 10.5 C7.6 7.8 7 7 4.5 6 C7 5 7.6 4.2 8 1.5 Z"/><path d="M12 8.5 C12.3 10 12.5 10.5 14 10.8 C12.5 11.1 12.3 11.6 12 13 C11.7 11.6 11.5 11.1 10 10.8 C11.5 10.5 11.7 10 12 8.5 Z" opacity=".75"/></svg>
+      </span>
+      <span class="nav-label">AI 资讯</span>
+    </li>
+  </ul>
+  <div class="sidebar-footer">数据存储在浏览器本地</div>
+</nav>
+
+<main id="content"></main>
+
+<script>
+/* ============================================================
+   个人工作台 - Personal Workbench
+   单文件 HTML | localStorage 持久化 | 无外部依赖
+   ============================================================ */
+
+// ===== Storage =====
+var DB = {
+  _prefix: 'wb_',
+  get: function(key, def) {
+    def = def || [];
+    try {
+      var v = localStorage.getItem(this._prefix + key);
+      return v ? JSON.parse(v) : def;
+    } catch(e) { return def; }
+  },
+  set: function(key, val) {
+    try { localStorage.setItem(this._prefix + key, JSON.stringify(val)); } catch(e) {}
+  },
+  rm: function(key) { try { localStorage.removeItem(this._prefix + key); } catch(e) {} }
+};
+
+// Data keys
+var KEYS = {
+  TODOS: 'todos', SCHEDULE: 'schedule', LOGS: 'logs', NOTES: 'notes',
+  FINANCE: 'finance', SHOPPING: 'shopping', NEWS_CACHE: 'news_cache', MANUAL_NEWS: 'manual_news'
+};
+
+// ===== Utils =====
+function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function fmtDateCN(str) {
+  if (!str) return '';
+  var parts = str.split('-');
+  var d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+  var w = ['日','一','二','三','四','五','六'];
+  return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日 星期' + w[d.getDay()];
+}
+function fmtDateShort(str) {
+  if (!str) return '';
+  var parts = str.split('-');
+  return (+parts[1]) + '月' + (+parts[2]) + '日';
+}
+function fmtMonth(str) {
+  if (!str) return '';
+  var parts = str.split('-');
+  return parts[0] + '年' + (+parts[1]) + '月';
+}
+function fmtTime(ts) {
+  var d = new Date(ts);
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+}
+function calcHours(start, end) {
+  var s = start.split(':'), e = end.split(':');
+  var h = ((+e[0]*60 + +e[1]) - (+s[0]*60 + +s[1])) / 60;
+  return Math.max(0, Math.round(h * 10) / 10);
+}
+function addDays(dateStr, n) {
+  var d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function weekRange(dateStr) {
+  var d = new Date(dateStr + 'T00:00:00');
+  var day = d.getDay() || 7;
+  var mon = new Date(d);
+  mon.setDate(d.getDate() - day + 1);
+  var sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  return {
+    mon: mon.getFullYear()+'-'+pad(mon.getMonth()+1)+'-'+pad(mon.getDate()),
+    sun: sun.getFullYear()+'-'+pad(sun.getMonth()+1)+'-'+pad(sun.getDate())
+  };
+}
+function monthRange(dateStr) {
+  var parts = dateStr.split('-');
+  var d = new Date(+parts[0], +parts[1]-1, 1);
+  var last = new Date(+parts[0], +parts[1], 0);
+  return {
+    start: d.getFullYear()+'-'+pad(d.getMonth()+1)+'-01',
+    end: last.getFullYear()+'-'+pad(last.getMonth()+1)+'-'+pad(last.getDate())
+  };
+}
+function greeting() {
+  var h = new Date().getHours();
+  if (h < 6) return '夜深了';
+  if (h < 9) return '早上好';
+  if (h < 12) return '上午好';
+  if (h < 13) return '中午好';
+  if (h < 18) return '下午好';
+  if (h < 22) return '晚上好';
+  return '夜深了';
+}
+function esc(str) {
+  if (!str) return '';
+  str = str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return str;
+}
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+// ===== State =====
+var currentRoute = 'overview';
+var currentDate = todayStr();
+var scheduleMode = 'daily'; // daily | weekly | monthly
+var financeMode = 'accounting'; // accounting | shopping
+var notesSearch = '';
+
+// ===== Router =====
+function navigate(route) {
+  currentRoute = route;
+  var items = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
+  var idx = ['overview','todos','schedule','logs','notes','finance','news'].indexOf(route);
+  if (idx >= 0 && items[idx]) items[idx].classList.add('active');
+  renderContent();
+}
+
+function setDate(d) { currentDate = d; renderContent(); }
+
+function renderContent() {
+  var content = document.getElementById('content');
+  switch(currentRoute) {
+    case 'overview': content.innerHTML = renderOverview(); break;
+    case 'todos': content.innerHTML = renderTodos(); break;
+    case 'schedule': content.innerHTML = renderSchedule(); break;
+    case 'logs': content.innerHTML = renderLogs(); break;
+    case 'notes': content.innerHTML = renderNotes(); break;
+    case 'finance': content.innerHTML = renderFinance(); break;
+    case 'news': content.innerHTML = renderNews(); break;
+    default: content.innerHTML = renderOverview();
+  }
+  bindEvents();
+}
+
+// ===== Event Binding =====
+function bindEvents() {
+  if (currentRoute === 'news') bindNewsEvents();
+}
+// Deferred binding for news module
+function bindNewsEvents() { /* handled in renderNews via onclick */ }
+
+// ===================== 1. OVERVIEW =====================
+function renderOverview() {
+  var today = todayStr();
+  var todos = DB.get(KEYS.TODOS);
+  var todayTodos = todos.filter(function(t) { return t.date === today; });
+  var pending = todayTodos.filter(function(t) { return !t.done; });
+  var doneCount = todayTodos.filter(function(t) { return t.done; }).length;
+
+  var schedule = DB.get(KEYS.SCHEDULE);
+  var todaySched = schedule.filter(function(s) { return s.date === today; });
+  var schedHours = 0;
+  todaySched.forEach(function(s) { schedHours += calcHours(s.start, s.end); });
+  schedHours = Math.round(schedHours * 10) / 10;
+
+  var finance = DB.get(KEYS.FINANCE);
+  var todayExpense = 0, monthIncome = 0, monthExpense = 0;
+  var mr = monthRange(today);
+  finance.forEach(function(f) {
+    var amt = parseFloat(f.amount) || 0;
+    if (f.date === today && f.type === 'expense') todayExpense += amt;
+    if (f.date >= mr.start && f.date <= mr.end) {
+      if (f.type === 'income') monthIncome += amt;
+      else monthExpense += amt;
+    }
+  });
+  var monthBalance = monthIncome - monthExpense;
+
+  var notes = DB.get(KEYS.NOTES);
+  var logs = DB.get(KEYS.LOGS);
+
+  var h = '';
+  h += '<div class="page-header">';
+  h += '<div><div class="page-title">' + greeting() + '，欢迎回来</div>';
+  h += '<div class="page-subtitle">' + fmtDateCN(today) + '</div></div>';
+  h += '<div style="font-size:13px;color:var(--text-muted)">共 ' + notes.length + ' 篇笔记 · ' + logs.length + ' 篇日志</div>';
+  h += '</div>';
+
+  // Stat cards
+  h += '<div class="grid-3" style="margin-bottom:20px">';
+  h += '<div class="stat-card"><div class="stat-badge badge-green"><svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M5.4 8 L7.2 9.8 L10.6 6.2"/></svg></div><div class="stat-label">今日待办</div><div class="stat-value">' + pending.length + '</div><div class="stat-sub">已完成 ' + doneCount + ' 件</div></div>';
+  h += '<div class="stat-card"><div class="stat-badge badge-orange"><svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 4.5 V8 L10.5 9.6"/></svg></div><div class="stat-label">今日规划</div><div class="stat-value">' + schedHours + 'h</div><div class="stat-sub">' + todaySched.length + ' 个时间段</div></div>';
+  h += '<div class="stat-card"><div class="stat-badge badge-red"><svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M5.5 6 H10.5 M8 5 V11 M6.2 8.5 H9.8 M6.5 10.5 H9.5"/></svg></div><div class="stat-label">今日支出</div><div class="stat-value" style="color:' + (todayExpense > 0 ? 'var(--danger)' : 'var(--text-primary)') + '">¥' + todayExpense.toFixed(2) + '</div><div class="stat-sub">本月结余 ¥' + monthBalance.toFixed(2) + '</div></div>';
+  h += '</div>';
+
+  // Today's todos
+  h += '<div class="grid-2">';
+  h += '<div class="card">';
+  h += '<div class="card-header">📋 今日待办 <span class="card-sub">（' + pending.length + ' 件待完成）</span></div>';
+  if (pending.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">🎉</span>今天暂无待办，轻松一天！</div>';
+  } else {
+    pending.forEach(function(t) {
+      var pClass = t.priority === 'high' ? 'tag-high' : (t.priority === 'medium' ? 'tag-medium' : 'tag-low');
+      var pText = t.priority === 'high' ? '高' : (t.priority === 'medium' ? '中' : '低');
+      h += '<div class="list-item"><span class="tag ' + pClass + '">' + pText + '</span>';
+      h += '<span class="list-item-text">' + esc(t.text) + '</span></div>';
+    });
+  }
+  h += '</div>';
+
+  // Today's schedule
+  h += '<div class="card">';
+  h += '<div class="card-header">📅 今日时间安排 <span class="card-sub">（共 ' + schedHours + 'h）</span></div>';
+  if (todaySched.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">📭</span>今天还没有时间安排</div>';
+  } else {
+    todaySched.sort(function(a,b) { return a.start.localeCompare(b.start); });
+    todaySched.forEach(function(s) {
+      var hh = calcHours(s.start, s.end);
+      h += '<div class="timeline-item">';
+      h += '<div class="timeline-time">' + s.start + ' - ' + s.end + '</div>';
+      h += '<div class="timeline-dot"></div>';
+      h += '<div class="timeline-content">';
+      h += '<div class="timeline-activity">' + esc(s.activity) + '</div>';
+      h += '<div class="timeline-hours">' + hh + 'h · ' + esc(s.category || '其他') + '</div>';
+      h += '</div></div>';
+    });
+  }
+  h += '</div>';
+  h += '</div>';
+
+  // Recent expenses
+  var recentTxn = finance.slice().sort(function(a,b) { return b.date.localeCompare(a.date) || (b.id || '').localeCompare(a.id ||''); }).slice(0, 5);
+  h += '<div class="card" style="margin-top:16px">';
+  h += '<div class="card-header">💳 最近收支</div>';
+  if (recentTxn.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">💳</span>还没有收支记录</div>';
+  } else {
+    recentTxn.forEach(function(f) {
+      var cls = f.type === 'income' ? 'income' : 'expense';
+      var sym = f.type === 'income' ? '+' : '-';
+      h += '<div class="txn-item">';
+      h += '<span class="txn-amount ' + cls + '">' + sym + '¥' + (parseFloat(f.amount)||0).toFixed(2) + '</span>';
+      h += '<span class="txn-cat">' + esc(f.category) + '</span>';
+      h += '<span style="flex:1;font-size:13px;color:var(--text-muted)">' + esc(f.note || '') + '</span>';
+      h += '<span style="font-size:12px;color:var(--text-light)">' + fmtDateShort(f.date) + '</span>';
+      h += '</div>';
+    });
+  }
+  h += '</div>';
+
+  return h;
+}
+
+// ===================== 2. TODOS =====================
+function renderTodos() {
+  var todos = DB.get(KEYS.TODOS);
+  var dayTodos = todos.filter(function(t) { return t.date === currentDate; });
+  var pending = dayTodos.filter(function(t) { return !t.done; });
+  var completed = dayTodos.filter(function(t) { return t.done; });
+
+  var h = '';
+  h += '<div class="page-header"><div><div class="page-title">✅ 待办任务</div><div class="page-subtitle">' + fmtDateCN(currentDate) + '</div></div></div>';
+
+  // Date nav
+  h += '<div class="date-nav">';
+  h += '<button class="nav-arrow" onclick="setDate(\'' + addDays(currentDate, -1) + '\')">◀</button>';
+  h += '<span class="date-display" onclick="var d=this.querySelector(\'input\');d.focus();d.showPicker();">' + fmtDateCN(currentDate) + '<input type="date" value="' + currentDate + '" onchange="setDate(this.value)" style="position:absolute;opacity:0;width:0;height:0"></span>';
+  h += '<button class="nav-arrow" onclick="setDate(\'' + addDays(currentDate, 1) + '\')">▶</button>';
+  h += '<button class="btn btn-ghost btn-sm" onclick="setDate(\'' + todayStr() + '\')">今天</button>';
+  h += '</div>';
+
+  // Add form
+  h += '<div class="card" style="margin-bottom:16px">';
+  h += '<div class="form-row">';
+  h += '<input type="text" id="todo-input" placeholder="输入任务内容..." style="flex:3" onkeydown="if(event.key===\'Enter\')addTodo()">';
+  h += '<select id="todo-priority" style="flex:1;min-width:100px"><option value="medium">中优先级</option><option value="high">高优先级</option><option value="low">低优先级</option></select>';
+  h += '<button class="btn btn-primary" onclick="addTodo()">添加</button>';
+  h += '</div></div>';
+
+  // Pending list
+  h += '<div class="card">';
+  h += '<div class="card-header">📌 待完成（' + pending.length + ' 件）</div>';
+  if (pending.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">✨</span>全部完成，干得漂亮！</div>';
+  } else {
+    pending.sort(function(a,b) {
+      var order = { high:0, medium:1, low:2 };
+      return (order[a.priority]||1) - (order[b.priority]||1);
+    });
+    pending.forEach(function(t) {
+      var pClass = t.priority === 'high' ? 'tag-high' : (t.priority === 'medium' ? 'tag-medium' : 'tag-low');
+      var pText = t.priority === 'high' ? '高' : (t.priority === 'medium' ? '中' : '低');
+      h += '<div class="list-item">';
+      h += '<div class="list-item-check" onclick="toggleTodo(\'' + t.id + '\')"></div>';
+      h += '<span class="list-item-text">' + esc(t.text) + '</span>';
+      h += '<span class="tag ' + pClass + '" style="margin-right:8px">' + pText + '</span>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="deleteTodo(\'' + t.id + '\')">删除</button>';
+      h += '</div>';
+    });
+  }
+  h += '</div>';
+
+  // Completed list
+  if (completed.length > 0) {
+    h += '<div class="card" style="margin-top:16px">';
+    h += '<div class="card-header">✅ 已完成（' + completed.length + ' 件）</div>';
+    completed.forEach(function(t) {
+      h += '<div class="list-item done">';
+      h += '<div class="list-item-check checked">✓</div>';
+      h += '<span class="list-item-text">' + esc(t.text) + '</span>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="toggleTodo(\'' + t.id + '\')">还原</button>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="deleteTodo(\'' + t.id + '\')">删除</button>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
+  return h;
+}
+
+function addTodo() {
+  var input = document.getElementById('todo-input');
+  if (!input) return;
+  var text = input.value.trim();
+  if (!text) return;
+  var priority = document.getElementById('todo-priority').value;
+  var todos = DB.get(KEYS.TODOS);
+  todos.unshift({ id: uid(), date: currentDate, text: text, priority: priority, done: false, createdAt: Date.now() });
+  DB.set(KEYS.TODOS, todos);
+  renderContent();
+}
+
+function toggleTodo(id) {
+  var todos = DB.get(KEYS.TODOS);
+  var idx = -1;
+  for (var i = 0; i < todos.length; i++) { if (todos[i].id === id) { idx = i; break; } }
+  if (idx >= 0) { todos[idx].done = !todos[idx].done; DB.set(KEYS.TODOS, todos); }
+  renderContent();
+}
+
+function deleteTodo(id) {
+  if (!confirm('确定删除这个任务？')) return;
+  var todos = DB.get(KEYS.TODOS);
+  todos = todos.filter(function(t) { return t.id !== id; });
+  DB.set(KEYS.TODOS, todos);
+  renderContent();
+}
+
+// ===================== 3. SCHEDULE =====================
+function renderSchedule() {
+  var h = '';
+  h += '<div class="page-header"><div><div class="page-title">📅 时间规划</div><div class="page-subtitle">每日规划 + 周报月报自动汇总</div></div></div>';
+
+  // Tabs: daily / weekly / monthly
+  h += '<div class="tabs">';
+  h += '<div class="tab' + (scheduleMode === 'daily' ? ' active' : '') + '" onclick="switchScheduleMode(\'daily\')">每日</div>';
+  h += '<div class="tab' + (scheduleMode === 'weekly' ? ' active' : '') + '" onclick="switchScheduleMode(\'weekly\')">周报</div>';
+  h += '<div class="tab' + (scheduleMode === 'monthly' ? ' active' : '') + '" onclick="switchScheduleMode(\'monthly\')">月报</div>';
+  h += '</div>';
+
+  if (scheduleMode === 'daily') {
+    h += renderScheduleDaily();
+  } else if (scheduleMode === 'weekly') {
+    h += renderScheduleWeekly();
+  } else {
+    h += renderScheduleMonthly();
+  }
+  return h;
+}
+
+function switchScheduleMode(mode) {
+  scheduleMode = mode;
+  renderContent();
+}
+
+function renderScheduleDaily() {
+  var schedule = DB.get(KEYS.SCHEDULE);
+  var daySched = schedule.filter(function(s) { return s.date === currentDate; });
+  var totalHours = 0;
+  daySched.forEach(function(s) { totalHours += calcHours(s.start, s.end); });
+  totalHours = Math.round(totalHours * 10) / 10;
+
+  var h = '';
+  // Date nav
+  h += '<div class="date-nav">';
+  h += '<button class="nav-arrow" onclick="setDate(\'' + addDays(currentDate, -1) + '\')">◀</button>';
+  h += '<span class="date-display" onclick="var d=this.querySelector(\'input\');d.focus();d.showPicker();">' + fmtDateCN(currentDate) + '<input type="date" value="' + currentDate + '" onchange="setDate(this.value)" style="position:absolute;opacity:0;width:0;height:0"></span>';
+  h += '<button class="nav-arrow" onclick="setDate(\'' + addDays(currentDate, 1) + '\')">▶</button>';
+  h += '<button class="btn btn-ghost btn-sm" onclick="setDate(\'' + todayStr() + '\')">今天</button>';
+  h += '</div>';
+
+  // Add form
+  h += '<div class="card" style="margin-bottom:16px">';
+  h += '<div class="form-row">';
+  h += '<label style="font-size:13px;color:var(--text-muted);flex:0 0 auto;padding:8px 0">时间</label>';
+  h += '<input type="time" id="sched-start" value="09:00" style="flex:1;min-width:0">';
+  h += '<span style="flex:0 0 auto;color:var(--text-muted);font-size:13px">至</span>';
+  h += '<input type="time" id="sched-end" value="10:00" style="flex:1;min-width:0">';
+  h += '<input type="text" id="sched-activity" placeholder="做什么？" style="flex:2;min-width:0">';
+  h += '<select id="sched-cat" style="flex:1;min-width:0"><option value="开发">开发</option><option value="会议">会议</option><option value="学习">学习</option><option value="文档">文档</option><option value="沟通">沟通</option><option value="其他">其他</option></select>';
+  h += '<button class="btn btn-primary" onclick="addSchedule()">添加</button>';
+  h += '</div></div>';
+
+  // Timeline
+  h += '<div class="card">';
+  h += '<div class="card-header">⏱️ 今日时间线 <span class="card-sub">共 ' + totalHours + ' 小时</span></div>';
+  if (daySched.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">📭</span>还没有时间安排，点击上方添加</div>';
+  } else {
+    daySched.sort(function(a,b) { return a.start.localeCompare(b.start); });
+    daySched.forEach(function(s) {
+      var hh = calcHours(s.start, s.end);
+      h += '<div class="timeline-item">';
+      h += '<div class="timeline-time">' + s.start + ' - ' + s.end + '</div>';
+      h += '<div class="timeline-dot"></div>';
+      h += '<div class="timeline-content">';
+      h += '<div class="timeline-activity">' + esc(s.activity) + '</div>';
+      h += '<div class="timeline-hours">' + hh + 'h · <span class="tag tag-cat">' + esc(s.category || '其他') + '</span></div>';
+      h += '</div>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="deleteSchedule(\'' + s.id + '\')">删除</button>';
+      h += '</div>';
+    });
+  }
+  h += '</div>';
+  return h;
+}
+
+function addSchedule() {
+  var start = document.getElementById('sched-start').value;
+  var end = document.getElementById('sched-end').value;
+  var activity = document.getElementById('sched-activity').value.trim();
+  var cat = document.getElementById('sched-cat').value;
+  if (!start || !end || !activity) return;
+  if (calcHours(start, end) <= 0) { alert('结束时间必须晚于开始时间'); return; }
+
+  var schedule = DB.get(KEYS.SCHEDULE);
+  schedule.unshift({ id: uid(), date: currentDate, start: start, end: end, activity: activity, category: cat });
+  DB.set(KEYS.SCHEDULE, schedule);
+  renderContent();
+}
+
+function deleteSchedule(id) {
+  if (!confirm('删除这个时间段？')) return;
+  var schedule = DB.get(KEYS.SCHEDULE);
+  schedule = schedule.filter(function(s) { return s.id !== id; });
+  DB.set(KEYS.SCHEDULE, schedule);
+  renderContent();
+}
+
+function renderScheduleWeekly() {
+  var wr = weekRange(currentDate);
+  var schedule = DB.get(KEYS.SCHEDULE);
+  var weekEntries = schedule.filter(function(s) { return s.date >= wr.mon && s.date <= wr.sun; });
+  var byCat = {}, totalHours = 0;
+
+  weekEntries.forEach(function(s) {
+    var hh = calcHours(s.start, s.end);
+    var cat = s.category || '其他';
+    byCat[cat] = (byCat[cat] || 0) + hh;
+    totalHours += hh;
+  });
+  totalHours = Math.round(totalHours * 10) / 10;
+
+  var h = '';
+  h += '<div class="card">';
+  h += '<div class="card-header">📊 周报：' + fmtDateShort(wr.mon) + ' - ' + fmtDateShort(wr.sun) + ' <span class="card-sub">共 ' + totalHours + ' 小时</span></div>';
+
+  if (weekEntries.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">📭</span>本周还没有时间记录</div>';
+  } else {
+    var cats = Object.keys(byCat).sort(function(a,b) { return byCat[b] - byCat[a]; });
+    cats.forEach(function(cat) {
+      var hrs = Math.round(byCat[cat] * 10) / 10;
+      var pct = totalHours > 0 ? Math.round(hrs / totalHours * 100) : 0;
+      h += '<div class="report-bar">';
+      h += '<div class="report-label">' + esc(cat) + '</div>';
+      h += '<div class="report-track"><div class="report-fill" style="width:' + pct + '%"></div></div>';
+      h += '<div class="report-val">' + hrs + 'h (' + pct + '%)</div>';
+      h += '</div>';
+    });
+
+    // Day-by-day
+    h += '<div style="margin-top:16px;font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px">每日明细</div>';
+    for (var d = 0; d < 7; d++) {
+      var day = addDays(wr.mon, d);
+      var dayEntries = weekEntries.filter(function(s) { return s.date === day; });
+      var dayHours = 0;
+      dayEntries.forEach(function(s) { dayHours += calcHours(s.start, s.end); });
+      dayHours = Math.round(dayHours * 10) / 10;
+      h += '<div class="list-item">';
+      h += '<span style="width:80px;font-size:13px;color:var(--text-muted)">' + fmtDateShort(day) + '</span>';
+      h += '<div class="report-track" style="flex:1"><div class="report-fill" style="width:' + clamp(dayHours/12*100, 0, 100) + '%"></div></div>';
+      h += '<span style="width:50px;text-align:right;font-size:13px;font-weight:500">' + dayHours + 'h</span>';
+      h += '<span style="width:auto;font-size:12px;color:var(--text-muted);text-align:left;margin-left:10px">' + dayEntries.map(function(s) { return esc(s.category || '其他'); }).join(', ') + '</span>';
+      h += '</div>';
+    }
+  }
+  h += '</div>';
+  return h;
+}
+
+function renderScheduleMonthly() {
+  var mr = monthRange(currentDate);
+  var schedule = DB.get(KEYS.SCHEDULE);
+  var monthEntries = schedule.filter(function(s) { return s.date >= mr.start && s.date <= mr.end; });
+  var byCat = {}, totalHours = 0;
+  var byDay = {};
+
+  monthEntries.forEach(function(s) {
+    var hh = calcHours(s.start, s.end);
+    var cat = s.category || '其他';
+    byCat[cat] = (byCat[cat] || 0) + hh;
+    totalHours += hh;
+    byDay[s.date] = (byDay[s.date] || 0) + hh;
+  });
+  totalHours = Math.round(totalHours * 10) / 10;
+
+  var h = '';
+  // Month nav
+  h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">';
+  h += '<button class="btn btn-ghost" onclick="setDate(\'' + addDays(mr.start, -1) + '\')">◀ 上月</button>';
+  h += '<span style="font-size:18px;font-weight:700">' + fmtMonth(mr.start) + '</span>';
+  var next = new Date(+mr.start.split('-')[0], +mr.start.split('-')[1], 1);
+  next.setMonth(next.getMonth());
+  var nextStr = next.getFullYear()+'-'+pad(next.getMonth()+1)+'-01';
+  h += '<button class="btn btn-ghost" onclick="setDate(\'' + nextStr + '\')">下月 ▶</button>';
+  h += '</div>';
+
+  h += '<div class="card">';
+  h += '<div class="card-header">📊 ' + fmtMonth(mr.start) + ' 月报 <span class="card-sub">共 ' + totalHours + ' 小时 · ' + Object.keys(byDay).length + ' 天有记录</span></div>';
+
+  if (monthEntries.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">📭</span>本月还没有时间记录</div>';
+  } else {
+    var cats = Object.keys(byCat).sort(function(a,b) { return byCat[b] - byCat[a]; });
+    h += '<div style="margin-bottom:12px;font-size:13px;font-weight:600;color:var(--text-muted)">分类汇总</div>';
+    cats.forEach(function(cat) {
+      var hrs = Math.round(byCat[cat] * 10) / 10;
+      var pct = totalHours > 0 ? Math.round(hrs / totalHours * 100) : 0;
+      h += '<div class="report-bar">';
+      h += '<div class="report-label">' + esc(cat) + '</div>';
+      h += '<div class="report-track"><div class="report-fill" style="width:' + pct + '%"></div></div>';
+      h += '<div class="report-val">' + hrs + 'h (' + pct + '%)</div>';
+      h += '</div>';
+    });
+  }
+  h += '</div>';
+  return h;
+}
+
+// ===================== 4. LOGS =====================
+function renderLogs() {
+  var logs = DB.get(KEYS.LOGS);
+  var todayLog = null;
+  for (var i = 0; i < logs.length; i++) { if (logs[i].date === currentDate) { todayLog = logs[i]; break; } }
+  var hasLog = todayLog && todayLog.content.trim();
+
+  var h = '';
+  h += '<div class="page-header"><div><div class="page-title">📝 工作日志</div><div class="page-subtitle">记录今天做了什么</div></div></div>';
+
+  // Date nav
+  h += '<div class="date-nav">';
+  h += '<button class="nav-arrow" onclick="setDate(\'' + addDays(currentDate, -1) + '\')">◀</button>';
+  h += '<span class="date-display" onclick="var d=this.querySelector(\'input\');d.focus();d.showPicker();">' + fmtDateCN(currentDate) + '<input type="date" value="' + currentDate + '" onchange="setDate(this.value)" style="position:absolute;opacity:0;width:0;height:0"></span>';
+  h += '<button class="nav-arrow" onclick="setDate(\'' + addDays(currentDate, 1) + '\')">▶</button>';
+  h += '<button class="btn btn-ghost btn-sm" onclick="setDate(\'' + todayStr() + '\')">今天</button>';
+  h += '</div>';
+
+  h += '<div class="card">';
+  h += '<div class="form-group"><label>今天的记录</label>';
+  h += '<textarea id="log-content" placeholder="今天做了什么、遇到了什么问题、有什么想法...&#10;&#10;提示：按 Ctrl+Enter 保存" style="min-height:250px" onkeydown="if(event.ctrlKey && event.key===\'Enter\')saveLog()">' + esc(todayLog ? todayLog.content : '') + '</textarea>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:8px;justify-content:flex-end">';
+  h += '<span style="font-size:12px;color:var(--text-light);margin-right:auto;align-self:center">' + (todayLog && todayLog.updatedAt ? '上次保存: ' + fmtTime(todayLog.updatedAt) : '') + '</span>';
+  h += '<button class="btn btn-primary" onclick="saveLog()">💾 保存</button>';
+  h += '</div></div>';
+
+  // Past logs list
+  var pastLogs = logs.filter(function(l) { return l.date !== currentDate && l.content.trim(); }).sort(function(a,b) { return b.date.localeCompare(a.date); });
+  if (pastLogs.length > 0) {
+    h += '<div class="card" style="margin-top:16px">';
+    h += '<div class="card-header">📚 历史日志（' + pastLogs.length + ' 篇）</div>';
+    pastLogs.forEach(function(l) {
+      h += '<div class="list-item" style="cursor:pointer" onclick="setDate(\'' + l.date + '\')">';
+      h += '<span style="font-weight:500;width:120px;flex-shrink:0">' + fmtDateCN(l.date) + '</span>';
+      h += '<span style="color:var(--text-muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(l.content.substring(0, 60)) + '</span>';
+      h += '<span style="font-size:11px;color:var(--text-light);margin-left:auto;flex-shrink:0">' + fmtTime(l.updatedAt || 0) + '</span>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
+  return h;
+}
+
+function saveLog() {
+  var content = document.getElementById('log-content').value;
+  var logs = DB.get(KEYS.LOGS);
+  var found = false;
+  for (var i = 0; i < logs.length; i++) {
+    if (logs[i].date === currentDate) { logs[i].content = content; logs[i].updatedAt = Date.now(); found = true; break; }
+  }
+  if (!found) { logs.unshift({ id: uid(), date: currentDate, content: content, updatedAt: Date.now() }); }
+  DB.set(KEYS.LOGS, logs);
+  renderContent();
+}
+
+// ===================== 5. NOTES =====================
+function renderNotes() {
+  var notes = DB.get(KEYS.NOTES);
+  if (notesSearch) {
+    var q = notesSearch.toLowerCase();
+    notes = notes.filter(function(n) { return n.title.toLowerCase().indexOf(q) >= 0 || n.content.toLowerCase().indexOf(q) >= 0; });
+  }
+  notes.sort(function(a,b) { return b.createdAt - a.createdAt; });
+
+  var h = '';
+  h += '<div class="page-header"><div><div class="page-title">📌 随手笔记</div><div class="page-subtitle">代码片段 · 命令 · 解决方案 · 知识整理</div></div>';
+  h += '<button class="btn btn-primary" onclick="showAddNote()">+ 新建笔记</button></div>';
+
+  // Search
+  h += '<div style="margin-bottom:16px"><input type="text" id="notes-search" placeholder="搜索笔记..." value="' + esc(notesSearch) + '" oninput="notesSearch=this.value;renderContent()"></div>';
+
+  // Add note form (hidden by default)
+  h += '<div id="add-note-form" class="card" style="display:none;margin-bottom:16px">';
+  h += '<div class="form-group"><label>标题</label><input type="text" id="note-title" placeholder="笔记标题"></div>';
+  h += '<div class="form-group"><label>标签（用逗号分隔）</label><input type="text" id="note-tags" placeholder="如：git, 前端, 工具"></div>';
+  h += '<div class="form-group"><label>内容</label><textarea id="note-content" placeholder="写点什么..." style="min-height:120px"></textarea></div>';
+  h += '<div style="display:flex;gap:8px;justify-content:flex-end">';
+  h += '<button class="btn btn-ghost" onclick="document.getElementById(\'add-note-form\').style.display=\'none\'">取消</button>';
+  h += '<button class="btn btn-primary" onclick="addNote()">保存</button>';
+  h += '</div></div>';
+
+  // Notes grid
+  if (notes.length === 0) {
+    h += '<div class="empty-state" style="padding:60px 20px"><span class="empty-icon">📌</span>' + (notesSearch ? '没有匹配的笔记' : '还没有笔记，点击"新建笔记"开始记录') + '</div>';
+  } else {
+    h += '<div class="grid-4">';
+    notes.forEach(function(n) {
+      var tags = (n.tags || []).map(function(t) { return '<span class="tag tag-cat">' + esc(t) + '</span>'; }).join('');
+      h += '<div class="note-card">';
+      h += '<button class="btn btn-ghost btn-xs note-del" onclick="event.stopPropagation();deleteNote(\'' + n.id + '\')">✕</button>';
+      h += '<div class="note-title">' + esc(n.title || '无标题') + '</div>';
+      h += '<div class="note-preview">' + esc(n.content || '') + '</div>';
+      h += '<div class="note-tags">' + tags + '</div>';
+      h += '<div style="font-size:11px;color:var(--text-light);margin-top:6px">' + fmtTime(n.createdAt) + '</div>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
+  return h;
+}
+
+function showAddNote() {
+  document.getElementById('add-note-form').style.display = 'block';
+  document.getElementById('note-title').focus();
+}
+
+function addNote() {
+  var title = document.getElementById('note-title').value.trim();
+  var content = document.getElementById('note-content').value.trim();
+  var tagsStr = document.getElementById('note-tags').value.trim();
+  if (!title && !content) return;
+  var tags = tagsStr ? tagsStr.split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
+  var notes = DB.get(KEYS.NOTES);
+  notes.unshift({ id: uid(), title: title || '无标题', content: content, tags: tags, createdAt: Date.now() });
+  DB.set(KEYS.NOTES, notes);
+  renderContent();
+}
+
+function deleteNote(id) {
+  if (!confirm('确定删除这篇笔记？')) return;
+  var notes = DB.get(KEYS.NOTES);
+  notes = notes.filter(function(n) { return n.id !== id; });
+  DB.set(KEYS.NOTES, notes);
+  renderContent();
+}
+
+// ===================== 6. FINANCE =====================
+function renderFinance() {
+  var h = '';
+  h += '<div class="page-header"><div><div class="page-title">💰 财务管理</div><div class="page-subtitle">收支记账 · 购物清单</div></div></div>';
+
+  // Tabs
+  h += '<div class="tabs">';
+  h += '<div class="tab' + (financeMode === 'accounting' ? ' active' : '') + '" onclick="switchFinanceMode(\'accounting\')">记账</div>';
+  h += '<div class="tab' + (financeMode === 'shopping' ? ' active' : '') + '" onclick="switchFinanceMode(\'shopping\')">购物清单</div>';
+  h += '</div>';
+
+  if (financeMode === 'accounting') {
+    h += renderFinanceAccounting();
+  } else {
+    h += renderFinanceShopping();
+  }
+  return h;
+}
+
+function switchFinanceMode(mode) {
+  financeMode = mode;
+  renderContent();
+}
+
+function renderFinanceAccounting() {
+  var finance = DB.get(KEYS.FINANCE);
+  var today = todayStr();
+  var mr = monthRange(today);
+  var monthTxn = finance.filter(function(f) { return f.date >= mr.start && f.date <= mr.end; });
+  var monthIncome = 0, monthExpense = 0;
+  monthTxn.forEach(function(f) {
+    if (f.type === 'income') monthIncome += parseFloat(f.amount) || 0;
+    else monthExpense += parseFloat(f.amount) || 0;
+  });
+
+  var h = '';
+  // Monthly summary
+  h += '<div class="grid-3" style="margin-bottom:16px">';
+  h += '<div class="stat-card"><div class="stat-label">📥 本月收入</div><div class="stat-value" style="color:var(--success)">¥' + monthIncome.toFixed(2) + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-label">📤 本月支出</div><div class="stat-value" style="color:var(--danger)">¥' + monthExpense.toFixed(2) + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-label">💰 本月结余</div><div class="stat-value" style="color:' + (monthIncome - monthExpense >= 0 ? 'var(--success)' : 'var(--danger)') + '">¥' + (monthIncome - monthExpense).toFixed(2) + '</div></div>';
+  h += '</div>';
+
+  // Add form
+  h += '<div class="card" style="margin-bottom:16px">';
+  h += '<div class="form-row" style="flex-wrap:wrap">';
+  h += '<select id="txn-type" style="flex:0 0 80px;min-width:80px"><option value="expense">支出</option><option value="income">收入</option></select>';
+  h += '<input type="number" id="txn-amount" placeholder="金额" style="flex:1;min-width:80px" step="0.01" onkeydown="if(event.key===\'Enter\')addTransaction()">';
+  h += '<select id="txn-cat" style="flex:1;min-width:90px"><option value="餐饮">餐饮</option><option value="交通">交通</option><option value="购物">购物</option><option value="娱乐">娱乐</option><option value="居住">居住</option><option value="医疗">医疗</option><option value="教育">教育</option><option value="工资">工资</option><option value="其他">其他</option></select>';
+  h += '<input type="date" id="txn-date" value="' + today + '" style="flex:1;min-width:110px">';
+  h += '<input type="text" id="txn-note" placeholder="备注（选填）" style="flex:2;min-width:100px">';
+  h += '<button class="btn btn-primary" onclick="addTransaction()">记一笔</button>';
+  h += '</div></div>';
+
+  // Transaction list
+  var sorted = finance.slice().sort(function(a,b) { return b.date.localeCompare(a.date) || (b.id||'').localeCompare(a.id||''); });
+  if (sorted.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">💳</span>还没有收支记录，开始记账吧</div>';
+  } else {
+    h += '<div class="card">';
+    h += '<div class="card-header">收支流水</div>';
+    var lastDate = '';
+    sorted.forEach(function(f) {
+      if (f.date !== lastDate) {
+        lastDate = f.date;
+        h += '<div class="txn-date-group">' + fmtDateCN(f.date) + '</div>';
+      }
+      var cls = f.type === 'income' ? 'income' : 'expense';
+      var sym = f.type === 'income' ? '+' : '-';
+      h += '<div class="txn-item">';
+      h += '<span class="txn-amount ' + cls + '" style="width:100px;flex-shrink:0">' + sym + '¥' + (parseFloat(f.amount)||0).toFixed(2) + '</span>';
+      h += '<span class="txn-cat" style="width:60px;flex-shrink:0">' + esc(f.category) + '</span>';
+      h += '<span style="flex:1;font-size:13px;color:var(--text-muted)">' + esc(f.note || '') + '</span>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="deleteTransaction(\'' + f.id + '\')">删除</button>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+  return h;
+}
+
+function addTransaction() {
+  var type = document.getElementById('txn-type').value;
+  var amount = parseFloat(document.getElementById('txn-amount').value);
+  var cat = document.getElementById('txn-cat').value;
+  var date = document.getElementById('txn-date').value;
+  var note = document.getElementById('txn-note').value.trim();
+  if (isNaN(amount) || amount <= 0) return;
+  var finance = DB.get(KEYS.FINANCE);
+  finance.unshift({ id: uid(), date: date, type: type, amount: amount, category: cat, note: note });
+  DB.set(KEYS.FINANCE, finance);
+  renderContent();
+}
+
+function deleteTransaction(id) {
+  if (!confirm('删除这条记录？')) return;
+  var finance = DB.get(KEYS.FINANCE);
+  finance = finance.filter(function(f) { return f.id !== id; });
+  DB.set(KEYS.FINANCE, finance);
+  renderContent();
+}
+
+function renderFinanceShopping() {
+  var items = DB.get(KEYS.SHOPPING);
+  var pending = items.filter(function(i) { return !i.done; });
+  var bought = items.filter(function(i) { return i.done; });
+  var totalEstimate = pending.reduce(function(s,i) { return s + (parseFloat(i.price)||0); }, 0);
+  var totalSpent = bought.reduce(function(s,i) { return s + (parseFloat(i.spentPrice)||parseFloat(i.price)||0); }, 0);
+
+  var h = '';
+  // Summary
+  h += '<div class="grid-3" style="margin-bottom:16px">';
+  h += '<div class="stat-card"><div class="stat-label">🛒 待购</div><div class="stat-value">' + pending.length + '</div><div class="stat-sub">预估 ¥' + totalEstimate.toFixed(2) + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-label">✅ 已购</div><div class="stat-value">' + bought.length + '</div><div class="stat-sub">已花 ¥' + totalSpent.toFixed(2) + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-label">📋 总计</div><div class="stat-value">' + items.length + '</div><div class="stat-sub">件物品</div></div>';
+  h += '</div>';
+
+  // Add form
+  h += '<div class="card" style="margin-bottom:16px">';
+  h += '<div class="form-row">';
+  h += '<input type="text" id="shop-name" placeholder="物品名称" style="flex:3" onkeydown="if(event.key===\'Enter\')addShoppingItem()">';
+  h += '<input type="number" id="shop-price" placeholder="预计价格" style="flex:1;min-width:80px" step="0.01" onkeydown="if(event.key===\'Enter\')addShoppingItem()">';
+  h += '<button class="btn btn-primary" onclick="addShoppingItem()">添加</button>';
+  h += '</div></div>';
+
+  // Pending list
+  h += '<div class="card">';
+  h += '<div class="card-header">🛒 待购买（' + pending.length + ' 件）</div>';
+  if (pending.length === 0) {
+    h += '<div class="empty-state"><span class="empty-icon">✨</span>购物清单已清空</div>';
+  } else {
+    pending.forEach(function(item) {
+      h += '<div class="list-item">';
+      h += '<div class="list-item-check" onclick="toggleShopping(\'' + item.id + '\')"></div>';
+      h += '<span class="list-item-text" style="flex:1">' + esc(item.name) + '</span>';
+      h += '<span style="font-size:13px;color:var(--text-muted);margin-right:8px">¥' + (parseFloat(item.price)||0).toFixed(2) + '</span>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="deleteShopping(\'' + item.id + '\')">删除</button>';
+      h += '</div>';
+    });
+  }
+  h += '</div>';
+
+  // Bought list
+  if (bought.length > 0) {
+    h += '<div class="card" style="margin-top:16px">';
+    h += '<div class="card-header">✅ 已购买（' + bought.length + ' 件）</div>';
+    bought.forEach(function(item) {
+      h += '<div class="list-item done">';
+      h += '<div class="list-item-check checked">✓</div>';
+      h += '<span class="list-item-text" style="flex:1">' + esc(item.name) + '</span>';
+      h += '<span style="font-size:13px;color:var(--success);margin-right:8px">¥' + (parseFloat(item.spentPrice)||parseFloat(item.price)||0).toFixed(2) + '</span>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="toggleShopping(\'' + item.id + '\')">还原</button>';
+      h += '<button class="btn btn-ghost btn-xs" onclick="deleteShopping(\'' + item.id + '\')">删除</button>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
+  // Quick add to finance
+  h += '<div style="margin-top:16px;text-align:center">';
+  var undone = bought.filter(function(i) { return !i._addedToFinance; });
+  if (undone.length > 0) {
+    h += '<button class="btn btn-success btn-sm" onclick="batchAddToFinance()">将已购物品计入支出</button>';
+  }
+  h += '</div>';
+
+  return h;
+}
+
+function addShoppingItem() {
+  var name = document.getElementById('shop-name').value.trim();
+  var price = parseFloat(document.getElementById('shop-price').value) || 0;
+  if (!name) return;
+  var items = DB.get(KEYS.SHOPPING);
+  items.unshift({ id: uid(), name: name, price: price, done: false, createdAt: Date.now() });
+  DB.set(KEYS.SHOPPING, items);
+  renderContent();
+}
+
+function toggleShopping(id) {
+  var items = DB.get(KEYS.SHOPPING);
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].id === id) {
+      items[i].done = !items[i].done;
+      if (items[i].done && !items[i].spentPrice) items[i].spentPrice = items[i].price;
+      break;
+    }
+  }
+  DB.set(KEYS.SHOPPING, items);
+  renderContent();
+}
+
+function deleteShopping(id) {
+  if (!confirm('删除这条物品？')) return;
+  var items = DB.get(KEYS.SHOPPING);
+  items = items.filter(function(i) { return i.id !== id; });
+  DB.set(KEYS.SHOPPING, items);
+  renderContent();
+}
+
+function batchAddToFinance() {
+  var items = DB.get(KEYS.SHOPPING);
+  var bought = items.filter(function(i) { return i.done && !i._addedToFinance; });
+  if (bought.length === 0) return;
+  if (!confirm('将 ' + bought.length + ' 件已购物品作为支出记录添加？')) return;
+
+  var finance = DB.get(KEYS.FINANCE);
+  var today = todayStr();
+  bought.forEach(function(item) {
+    finance.unshift({
+      id: uid(),
+      date: today,
+      type: 'expense',
+      amount: item.spentPrice || item.price || 0,
+      category: '购物',
+      note: item.name
+    });
+    item._addedToFinance = true;
+  });
+  DB.set(KEYS.FINANCE, finance);
+  DB.set(KEYS.SHOPPING, items);
+  financeMode = 'accounting';
+  alert('已添加！切换到记账页面查看。');
+  renderContent();
+}
+
+// ===================== 7. NEWS =====================
+function renderNews() {
+  var cache = DB.get(KEYS.NEWS_CACHE, null);
+  var manualNews = DB.get(KEYS.MANUAL_NEWS);
+  var hasCache = cache && (cache.githubRepos || cache.aiNews || cache.financeNews);
+
+  var h = '';
+  h += '<div class="page-header"><div><div class="page-title">🤖 AI 资讯</div><div class="page-subtitle">GitHub开源项目 · AI工具动态 · 金融科技</div></div>';
+  h += '<div style="display:flex;gap:8px;align-items:center">';
+  h += '<span id="news-status" style="font-size:12px;color:var(--text-muted)">';
+  if (hasCache && cache.fetchedAt) {
+    var ago = Math.round((Date.now() - cache.fetchedAt) / 60000);
+    h += '上次更新：' + (ago < 1 ? '刚刚' : (ago < 60 ? ago + '分钟前' : Math.round(ago/60) + '小时前'));
+  }
+  h += '</span>';
+  h += '<button class="btn btn-primary btn-sm" onclick="fetchAllNews()">🔄 刷新资讯</button>';
+  h += '</div></div>';
+
+  // Manual add
+  h += '<details style="margin-bottom:16px"><summary style="cursor:pointer;font-size:13px;color:var(--text-muted);font-weight:500">+ 手动添加资讯</summary>';
+  h += '<div class="card" style="margin-top:8px"><div class="form-row">';
+  h += '<input type="text" id="manual-title" placeholder="标题" style="flex:2">';
+  h += '<input type="text" id="manual-url" placeholder="链接（选填）" style="flex:2">';
+  h += '<select id="manual-cat" style="flex:1;min-width:100px"><option value="github">GitHub项目</option><option value="ai">AI工具</option><option value="finance">金融科技</option></select>';
+  h += '<button class="btn btn-primary btn-sm" onclick="addManualNews()">添加</button>';
+  h += '</div></div></details>';
+
+  // If no cache, show empty
+  if (!hasCache && manualNews.length === 0) {
+    h += '<div class="empty-state" style="padding:60px 20px"><span class="empty-icon">🤖</span>还没有资讯，点击"刷新资讯"获取最新内容<br><small>资讯来源：GitHub + Hacker News</small></div>';
+    return h;
+  }
+
+  // Manual news
+  if (manualNews.length > 0) {
+    manualNews.sort(function(a,b) { return b.createdAt - a.createdAt; });
+    manualNews.forEach(function(n) {
+      var borderClass = n.category === 'github' ? 'github' : (n.category === 'finance' ? 'hn' : '');
+      h += '<div class="news-card ' + borderClass + '">';
+      h += '<div class="news-title">' + (n.url ? '<a href="' + esc(n.url) + '" target="_blank">' + esc(n.title) + '</a>' : esc(n.title)) + '</div>';
+      h += '<div class="news-meta">📌 收藏 · ' + fmtTime(n.createdAt) + ' <button class="btn btn-ghost btn-xs" onclick="deleteManualNews(\'' + n.id + '\')">删除</button></div>';
+      h += '</div>';
+    });
+    if (hasCache) h += '<div style="margin:16px 0;border-top:1px solid var(--border)"></div>';
+  }
+
+  if (!hasCache) return h;
+
+  // GitHub repos
+  if (cache.githubRepos && cache.githubRepos.length > 0) {
+    h += '<div class="card-header" style="margin-bottom:8px;font-size:16px">🐙 GitHub 开源项目</div>';
+    cache.githubRepos.forEach(function(r) {
+      h += '<div class="news-card github">';
+      h += '<div class="news-title"><a href="' + esc(r.url) + '" target="_blank">' + esc(r.name) + '</a></div>';
+      h += '<div style="font-size:13px;color:var(--text-muted);margin-bottom:4px">' + esc(r.desc || '暂无描述') + '</div>';
+      h += '<div class="news-meta">⭐ ' + r.stars + (r.lang ? ' · ' + r.lang : '') + (r.created ? ' · 创建于 ' + r.created : '') + '</div>';
+      h += '</div>';
+    });
+  }
+
+  // AI news
+  if (cache.aiNews && cache.aiNews.length > 0) {
+    h += '<div class="card-header" style="margin-bottom:8px;margin-top:20px;font-size:16px">🧠 AI 工具资讯</div>';
+    cache.aiNews.forEach(function(n) {
+      h += '<div class="news-card hn">';
+      h += '<div class="news-title"><a href="' + esc(n.url) + '" target="_blank">' + esc(n.title) + '</a></div>';
+      h += '<div class="news-meta">👍 ' + n.points + ' · Hacker News</div>';
+      h += '</div>';
+    });
+  }
+
+  // Finance news
+  if (cache.financeNews && cache.financeNews.length > 0) {
+    h += '<div class="card-header" style="margin-bottom:8px;margin-top:20px;font-size:16px">💹 金融科技资讯</div>';
+    cache.financeNews.forEach(function(n) {
+      h += '<div class="news-card hn">';
+      h += '<div class="news-title"><a href="' + esc(n.url) + '" target="_blank">' + esc(n.title) + '</a></div>';
+      h += '<div class="news-meta">👍 ' + n.points + ' · Hacker News</div>';
+      h += '</div>';
+    });
+  }
+
+  if (!cache.githubRepos || cache.githubRepos.length === 0) {
+    if (!cache.aiNews || cache.aiNews.length === 0) {
+      if (!cache.financeNews || cache.financeNews.length === 0) {
+        h += '<div class="empty-state" style="padding:20px"><span class="empty-icon">📭</span>本次未拉取到资讯，请稍后重试</div>';
+      }
+    }
+  }
+
+  return h;
+}
+
+function addManualNews() {
+  var title = document.getElementById('manual-title').value.trim();
+  var url = document.getElementById('manual-url').value.trim();
+  var cat = document.getElementById('manual-cat').value;
+  if (!title) return;
+  var items = DB.get(KEYS.MANUAL_NEWS);
+  items.unshift({ id: uid(), title: title, url: url, category: cat, createdAt: Date.now() });
+  DB.set(KEYS.MANUAL_NEWS, items);
+  document.getElementById('manual-title').value = '';
+  document.getElementById('manual-url').value = '';
+  renderContent();
+}
+
+function deleteManualNews(id) {
+  if (!confirm('删除这条资讯？')) return;
+  var items = DB.get(KEYS.MANUAL_NEWS);
+  items = items.filter(function(n) { return n.id !== id; });
+  DB.set(KEYS.MANUAL_NEWS, items);
+  renderContent();
+}
+
+async function fetchAllNews() {
+  var statusEl = document.getElementById('news-status');
+  if (statusEl) statusEl.textContent = '正在获取...';
+
+  var results = { githubRepos: [], aiNews: [], financeNews: [], fetchedAt: Date.now() };
+  var oneWeekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0];
+
+  // 1. GitHub: trending AI repos
+  try {
+    var ghUrl = 'https://api.github.com/search/repositories?q=created:>' + oneWeekAgo + '+stars:>20+ai+OR+llm+OR+gpt+OR+agent+in:name,description,topics&sort=stars&order=desc&per_page=15';
+    var ghRes = await fetch(ghUrl);
+    if (ghRes.ok) {
+      var ghData = await ghRes.json();
+      results.githubRepos = (ghData.items || []).map(function(r) {
+        return {
+          name: r.full_name,
+          desc: r.description || '暂无描述',
+          url: r.html_url,
+          stars: r.stargazers_count,
+          lang: r.language || '',
+          created: r.created_at ? r.created_at.split('T')[0] : ''
+        };
+      });
+    }
+  } catch(e) { console.warn('GitHub fetch error:', e); }
+
+  // 2. Hacker News: top stories, filter by AI/finance keywords
+  try {
+    var idsRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+    if (idsRes.ok) {
+      var ids = await idsRes.json();
+      var topIds = ids.slice(0, 40);
+      var stories = await Promise.all(topIds.map(function(id) {
+        return fetch('https://hacker-news.firebaseio.com/v0/item/' + id + '.json')
+          .then(function(r) { return r.json(); })
+          .catch(function() { return null; });
+      }));
+
+      var aiKw = ['ai', 'llm', 'gpt', 'claude', 'gemini', 'openai', 'anthropic', 'machine learning', 'neural', 'transformer', 'diffusion', 'agent', 'model', 'copilot', 'midjourney', 'stable diffusion', 'hugging face', 'chatbot', 'langchain', 'rag', 'embedding', 'vector', 'fine-tun', 'prompt', 'token', 'deep learning', 'reinforcement learning'];
+      var finKw = ['finance', 'economy', 'economic', 'market', 'stock', 'crypto', 'bitcoin', 'fed', 'rate', 'inflation', 'gdp', 'recession', 'funding', 'startup', 'ipo', 'tax', 'trade', 'treasury', 'bond', 'venture', 'acquisition', 'merger', 'revenue', 'earnings', 'tariff'];
+
+      stories.forEach(function(s) {
+        if (!s || !s.title) return;
+        var t = s.title.toLowerCase();
+        if (aiKw.some(function(k) { return t.indexOf(k) >= 0; })) {
+          results.aiNews.push({ title: s.title, url: s.url || 'https://news.ycombinator.com/item?id=' + s.id, points: s.score || 0 });
+        }
+        if (finKw.some(function(k) { return t.indexOf(k) >= 0; })) {
+          results.financeNews.push({ title: s.title, url: s.url || 'https://news.ycombinator.com/item?id=' + s.id, points: s.score || 0 });
+        }
+      });
+    }
+  } catch(e) { console.warn('HN fetch error:', e); }
+
+  // 3. Also search GitHub for major AI org repos
+  try {
+    var orgs = ['openai', 'anthropics', 'google', 'meta-llama', 'microsoft', 'deepseek-ai', 'xai-org'];
+    var orgSearches = orgs.map(function(org) {
+      return fetch('https://api.github.com/search/repositories?q=org:' + org + '+pushed:>' + oneWeekAgo + '&sort=updated&order=desc&per_page=3')
+        .then(function(r) { return r.json(); })
+        .then(function(d) { return d.items || []; })
+        .catch(function() { return []; });
+    });
+    var orgResults = await Promise.all(orgSearches);
+    var orgRepos = [];
+    var seenNames = {};
+    results.githubRepos.forEach(function(r) { seenNames[r.name] = true; });
+    [].concat.apply([], orgResults).forEach(function(r) {
+      if (!seenNames[r.full_name]) {
+        seenNames[r.full_name] = true;
+        orgRepos.push({
+          name: r.full_name,
+          desc: r.description || '暂无描述',
+          url: r.html_url,
+          stars: r.stargazers_count,
+          lang: r.language || '',
+          created: r.created_at ? r.created_at.split('T')[0] : ''
+        });
+      }
+    });
+    results.githubRepos = results.githubRepos.concat(orgRepos);
+  } catch(e) { console.warn('Org fetch error:', e); }
+
+  DB.set(KEYS.NEWS_CACHE, results);
+
+  if (statusEl) {
+    var count = (results.githubRepos ? results.githubRepos.length : 0) + (results.aiNews ? results.aiNews.length : 0) + (results.financeNews ? results.financeNews.length : 0);
+    statusEl.textContent = '更新完成，共获取 ' + count + ' 条资讯';
+    setTimeout(function() { statusEl.textContent = '最后更新：' + new Date().toLocaleTimeString('zh-CN'); }, 3000);
+  }
+  renderContent();
+}
+
+// ===== Init =====
+function init() {
+  renderContent();
+}
+
+init();
+</script>
+</body>
+</html>
